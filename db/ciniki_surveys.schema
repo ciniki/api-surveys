@@ -1,0 +1,40 @@
+#
+# Description
+# -----------
+#
+# Fields
+# -------
+# id:				The id of the survey.
+# uuid:				The Universal Unique ID.
+# business_id:		The business the item is attached to.
+#
+# name:				The name of the survey.
+# status:			The status of the survey.
+#
+#					0 - unknown
+#					5 - creating
+#					10 - active/open
+#					40 - closed
+#					60 - deleted
+#
+# instructions:		Any instructions for taking the survey.
+#
+# date_expires:		The UTC date and time the survey expires, and will no longer accept responses.
+#					If none specified, the survey will remain open until status is changed to closed.
+# 
+# date_added:       The UTC date and time the survey was added.
+# last_updated:     The UTC date and time the survey was last updated.
+#
+create table ciniki_surveys (
+	id int not null auto_increment,
+	uuid char(36) not null,
+	business_id int not null,
+	name varchar(150) not null,
+	status tinyint unsigned not null,
+	instructions varchar(20000) not null,
+	date_expires datetime not null,
+	date_added datetime not null,
+	last_updated datetime not null,
+	primary key(id),
+	index (business_id, uuid, last_updated)
+) ENGINE='InnoDB', COMMENT='v1.01';
