@@ -23,7 +23,7 @@ function ciniki_surveys_surveyAdd(&$ciniki) {
 		'name'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Type'),
 		'status'=>array('required'=>'yes', 'blank'=>'no', 'validlist'=>array('5', '10', '40', '60'), 'name'=>'Status'),
 		'instructions'=>array('required'=>'no', 'default'=>'', 'blank'=>'yes', 'name'=>'Instructions'),
-		'date_expires'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'datetime', 'name'=>'Expiry'),
+		'date_expires'=>array('required'=>'no', 'default'=>'', 'blank'=>'yes', 'type'=>'datetime', 'name'=>'Expiry'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -79,9 +79,13 @@ function ciniki_surveys_surveyAdd(&$ciniki) {
 		. "'" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "', "
 		. "'" . ciniki_core_dbQuote($ciniki, $args['name']) . "', "
 		. "'" . ciniki_core_dbQuote($ciniki, $args['status']) . "', "
-		. "'" . ciniki_core_dbQuote($ciniki, $args['instructions']) . "', "
-		. "CONVERT_TZ('" . ciniki_core_dbQuote($ciniki, $args['date_expires']) . "', '" . ciniki_core_dbQuote($ciniki, $utc_offset) . "', '+00:00'), "
-		. "UTC_TIMESTAMP(), UTC_TIMESTAMP())";
+		. "'" . ciniki_core_dbQuote($ciniki, $args['instructions']) . "', ";
+	if( $args['date_expires'] != '' ) {
+		$strsql .= "CONVERT_TZ('" . ciniki_core_dbQuote($ciniki, $args['date_expires']) . "', '" . ciniki_core_dbQuote($ciniki, $utc_offset) . "', '+00:00'), ";
+	} else {
+		$strsql .= "'', ";
+	}
+	$strsql .= "UTC_TIMESTAMP(), UTC_TIMESTAMP())";
 	$rc = ciniki_core_dbInsert($ciniki, $strsql, 'ciniki.surveys');
 	if( $rc['stat'] != 'ok' ) { 
 		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.surveys');
