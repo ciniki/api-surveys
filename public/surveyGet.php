@@ -20,6 +20,7 @@ function ciniki_surveys_surveyGet($ciniki) {
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
 		'survey_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Survey'),
 		'questions'=>array('required'=>'no', 'name'=>'Questions'),
+		'stats'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Stats'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -100,7 +101,50 @@ function ciniki_surveys_surveyGet($ciniki) {
 	if( !isset($rc['surveys']) && !isset($rc['surveys'][0]['survey']) ) {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1057', 'msg'=>'Unable to find survey'));
 	}
-	
-	return array('stat'=>'ok', 'survey'=>$rc['surveys'][0]['survey']);
+
+	$survey = $rc['surveys'][0]['survey'];
+
+	//
+	// Check if we should return the stats for this survey
+	//
+	if( isset($args['stats']) && $args['stats'] == 'yes' ) {
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbCount');
+		$question['stats'] = array();
+		$strsql = "SELECT status, COUNT(ciniki_survey_invites.id) "
+			. "FROM ciniki_survey_invites "
+			. "WHERE ciniki_survey_invites.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+			. "AND ciniki_survey_invites.survey_id = '" . ciniki_core_dbQuote($ciniki, $args['survey_id']) . "' "
+			. "GROUP BY status "
+			. "";
+		$rc = ciniki_core_dbCount($ciniki, $strsql, 'ciniki.surveys', 'stats');
+		if( $rc['stat'] != 'ok' ) {
+			return $rc;
+		}
+		if( isset($rc['stats']) ) {
+			$survey['stats']['total_invites'] = 0;
+			$survey['stats']['invites_sent'] = 0;
+			$survey['stats']['invites_seen'] = 0;
+			$survey['stats']['invites_answered'] = 0;
+			$survey['stats']['invites_unknown'] = 0;
+			foreach($rc['stats'] as $status => $num) {
+				$survey['stats']['total_invites'] += $num;
+				if( $status == '10' ) { 
+					$survey['stats']['invites_sent'] += $num; 
+				} else if( $status == '20' ) { 
+					$survey['stats']['invites_sent'] += $num; 
+					$survey['stats']['invites_seen'] += $num; 
+				} else if( $status == '30' ) { 
+					$survey['stats']['invites_sent'] += $num; 
+					$survey['stats']['invites_seen'] += $num; 
+					$survey['stats']['invites_answered'] += $num; 
+				} else { $survey['stats']['invites_unknown'] += $num; }
+			}
+		} else {
+			
+			$survey['stats']['answer_count'] = 0;
+		}
+	}
+
+	return array('stat'=>'ok', 'survey'=>$survey);
 }
 ?>

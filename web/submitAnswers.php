@@ -131,8 +131,11 @@ function ciniki_surveys_web_submitAnswers(&$ciniki, $settings, $business_id, $pe
 	//
 	// Update the date_answered on the invite
 	//
-	$strsql = "UPDATE ciniki_survey_invites SET status = 30, date_answered = '" . ciniki_core_dbQuote($ciniki, $utc_datetime) . "', "
-		. "last_updated = UTC_TIMESTAMP() "
+	$strsql = "UPDATE ciniki_survey_invites SET status = 30, date_answered = '" . ciniki_core_dbQuote($ciniki, $utc_datetime) . "', ";
+	if( isset($_SERVER['HTTP_USER_AGENT']) ) {
+		$strsql .= "answered_user_agent = '" . ciniki_core_dbQuote($ciniki, $_SERVER['HTTP_USER_AGENT']) . "', ";
+	}
+	$strsql .= "last_updated = UTC_TIMESTAMP() "
 		. "WHERE ciniki_survey_invites.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
 		. "AND ciniki_survey_invites.permalink = '" . ciniki_core_dbQuote($ciniki, $permalink) . "' "
 		. "AND status < 30 "
@@ -145,6 +148,10 @@ function ciniki_surveys_web_submitAnswers(&$ciniki, $settings, $business_id, $pe
 		2, 'ciniki_survey_invites', $survey['invite_id'], 'status', '30');
 	ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $business_id,
 		2, 'ciniki_survey_invites', $survey['invite_id'], 'date_answered', $utc_datetime);
+	if( isset($_SERVER['HTTP_USER_AGENT']) ) {
+		ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $business_id,
+			2, 'ciniki_survey_invites', $survey['invite_id'], 'answered_user_agent', $_SERVER['HTTP_USER_AGENT']);
+	}
 
 	return array('stat'=>'ok', 'survey'=>$survey);	
 }
