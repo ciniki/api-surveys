@@ -104,6 +104,12 @@ function ciniki_surveys_surveyGet($ciniki) {
 
 	$survey = $rc['surveys'][0]['survey'];
 
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'web', 'private', 'processContent');
+	if( isset($survey['instructions']) ) {
+		$rc = ciniki_web_processContent($ciniki, $survey['instructions']);
+		$survey['instructions-html'] = $rc['content'];
+	}
+
 	//
 	// Check if we should return the stats for this survey
 	//
