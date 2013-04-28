@@ -29,7 +29,7 @@ function ciniki_surveys_surveyListByStatus($ciniki) {
     // check permission to run this function for this business
     //  
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'surveys', 'private', 'checkAccess');
-    $rc = ciniki_surveys_checkAccess($ciniki, $args['business_id'], 'ciniki.surveys.surveyList'); 
+    $rc = ciniki_surveys_checkAccess($ciniki, $args['business_id'], 'ciniki.surveys.surveyListByStatus'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }   
