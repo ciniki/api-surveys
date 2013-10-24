@@ -101,7 +101,6 @@ function ciniki_surveys_downloadXLS($ciniki) {
 			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'999', 'msg'=>'Unable to find survey'));
 		}
 		$survey = array_pop($rc['surveys']);
-		error_log(print_r($survey, true));
 			
 		//
 		// Get the answers
@@ -158,7 +157,6 @@ function ciniki_surveys_downloadXLS($ciniki) {
 		//
 		// Add customer results
 		//
-		error_log('adding customers');
 		$row = 2;
 		foreach($customers as $cid => $customer) {
 			$i = 0;
