@@ -140,7 +140,8 @@ function ciniki_surveys_downloadXLS($ciniki) {
 		}
 
 		$sheet = $objPHPExcel->setActiveSheetIndex(0);
-		$sheet->setTitle($mailing['subject']);
+
+		$sheet->setTitle(substr($mailing['subject'], 0, 30));
 	
 		//
 		// Setup the questions header
@@ -190,7 +191,7 @@ function ciniki_surveys_downloadXLS($ciniki) {
 		// Redirect output to a client’s web browser (Excel5)
 		//
 		header('Content-Type: application/vnd.ms-excel');
-		header('Content-Disposition: attachment;filename="Survey Report - ' . $mailing['subject'] . '".xls"');
+		header('Content-Disposition: attachment;filename="Survey Results - ' . $mailing['subject'] . '".xls"');
 		header('Cache-Control: max-age=0');
 
 		$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
