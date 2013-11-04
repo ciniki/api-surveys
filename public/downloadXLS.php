@@ -98,7 +98,7 @@ function ciniki_surveys_downloadXLS($ciniki) {
 			return $rc;	
 		}
 		if( !isset($rc['surveys']) || count($rc['surveys']) < 1 ) {
-			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'999', 'msg'=>'Unable to find survey'));
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1129', 'msg'=>'Unable to find survey'));
 		}
 		$survey = array_pop($rc['surveys']);
 			
