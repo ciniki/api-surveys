@@ -30,7 +30,7 @@ function ciniki_surveys_downloadMailingsXLS($ciniki) {
 	// Check access to business_id
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'surveys', 'private', 'checkAccess');
-	$ac = ciniki_surveys_checkAccess($ciniki, $args['business_id'], 'ciniki.surveys.downloadXLS');
+	$ac = ciniki_surveys_checkAccess($ciniki, $args['business_id'], 'ciniki.surveys.downloadMailingsXLS');
 	if( $ac['stat'] != 'ok' ) {
 		return $ac;
 	}
