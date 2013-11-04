@@ -63,7 +63,7 @@ function ciniki_surveys_downloadXLS($ciniki) {
 			return $rc;
 		}
 		if( !isset($rc['mailing']) ) {
-			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'999', 'msg'=>'Unable to find mailing'));
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1131', 'msg'=>'Unable to find mailing'));
 		}
 		$mailing = $rc['mailing'];
 
