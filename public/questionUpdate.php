@@ -52,22 +52,6 @@ function ciniki_surveys_questionUpdate(&$ciniki) {
         return $rc;
     }
 
-	//  
-	// Turn off autocommit
-	//  
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionStart');
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionRollback');
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionCommit');
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuote');
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbInsert');
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbUpdate');
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDelete');
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbAddModuleHistory');
-	$rc = ciniki_core_dbTransactionStart($ciniki, 'ciniki.surveys');
-	if( $rc['stat'] != 'ok' ) { 
-		return $rc;
-	}
-
 	//
 	// Get the survey_id for existing question
 	//
@@ -89,107 +73,6 @@ function ciniki_surveys_questionUpdate(&$ciniki) {
 
 	if( isset($args['number']) && $args['number'] != '' ) {
 		//
-		// Check if there is a question already with this number, and shift it and any others up one
-		//
-		$strsql = "SELECT id, qnumber AS number "
-			. "FROM ciniki_survey_questions "
-			. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-			. "AND survey_id = '" . ciniki_core_dbQuote($ciniki, $survey_id) . "' "
-			. "ORDER BY qnumber "
-			. "";
-		$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.surveys', 'question');
-		if( $rc['stat'] != 'ok' ) {
-			ciniki_core_dbTransactionRollback($ciniki, 'ciniki.surveys');
-			return $rc;
-		}
-		if( isset($rc['rows']) ) {
-			$questions = $rc['rows'];
-			$update = 0;
-			$prev = 0;
-			foreach($questions as $qid => $question) {
-				//
-				// Set the question to decrease in number until we reach new number
-				//
-				if( $question['number'] == $old_number && $update <= 0 ) {
-					$update = -1;
-				}
-				//
-				// Skip the current question
-				//
-				if( $question['id'] == $args['question_id'] ) {
-					continue;
-				}
-				//
-				// Decrease by one
-				//
-				if( $question['number'] > 1 && $update < 0 ) {
-					$strsql = "UPDATE ciniki_survey_questions SET "
-						. "qnumber = '" . ciniki_core_dbQuote($ciniki, $question['number']-1) . "' "
-						. ", last_updated = UTC_TIMESTAMP() "
-						. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-						. "AND survey_id = '" . ciniki_core_dbQuote($ciniki, $survey_id) . "' "
-						. "AND id = '" . ciniki_core_dbQuote($ciniki, $question['id']) . "' "
-						. "";
-					$rc = ciniki_core_dbUpdate($ciniki, $strsql, 'ciniki.surveys');
-					if( $rc['stat'] != 'ok' ) {
-						ciniki_core_dbTransactionRollback($ciniki, 'ciniki.surveys');
-					}
-					ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 
-						'ciniki_survey_history', $args['business_id'], 
-						2, 'ciniki_survey_questions', $question['id'], 'qnumber', $question['number']-1);
-					$ciniki['syncqueue'][] = array('push'=>'ciniki.surveys.question', 
-						'args'=>array('id'=>$question['id']));
-				}
-				//
-				// increase any numbers up one
-				//
-				if( $question['number'] == $args['number'] || $update == 1) {
-					if( $update == 1 && $prev < ($question['number']-1) ) {
-						$update = 0;
-						break;
-					} elseif( $question['number'] > 1 && $update <= 0 ) {
-						$strsql = "UPDATE ciniki_survey_questions SET "
-							. "qnumber = '" . ciniki_core_dbQuote($ciniki, $question['number']-1) . "' "
-							. ", last_updated = UTC_TIMESTAMP() "
-							. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-							. "AND survey_id = '" . ciniki_core_dbQuote($ciniki, $survey_id) . "' "
-							. "AND id = '" . ciniki_core_dbQuote($ciniki, $question['id']) . "' "
-							. "";
-						$rc = ciniki_core_dbUpdate($ciniki, $strsql, 'ciniki.surveys');
-						if( $rc['stat'] != 'ok' ) {
-							ciniki_core_dbTransactionRollback($ciniki, 'ciniki.surveys');
-						}
-						ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 
-							'ciniki_survey_history', $args['business_id'], 
-							2, 'ciniki_survey_questions', $question['id'], 'qnumber', $question['number']-1);
-						$ciniki['syncqueue'][] = array('push'=>'ciniki.surveys.question', 
-							'args'=>array('id'=>$question['id']));
-						$update = 0;
-					} else {
-						$strsql = "UPDATE ciniki_survey_questions SET "
-							. "qnumber = '" . ciniki_core_dbQuote($ciniki, $question['number']+1) . "' "
-							. ", last_updated = UTC_TIMESTAMP() "
-							. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-							. "AND survey_id = '" . ciniki_core_dbQuote($ciniki, $survey_id) . "' "
-							. "AND id = '" . ciniki_core_dbQuote($ciniki, $question['id']) . "' "
-							. "";
-						$rc = ciniki_core_dbUpdate($ciniki, $strsql, 'ciniki.surveys');
-						if( $rc['stat'] != 'ok' ) {
-							ciniki_core_dbTransactionRollback($ciniki, 'ciniki.surveys');
-						}
-						ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 
-							'ciniki_survey_history', $args['business_id'], 
-							2, 'ciniki_survey_questions', $question['id'], 'qnumber', $question['number']+1);
-						$ciniki['syncqueue'][] = array('push'=>'ciniki.surveys.question', 
-							'args'=>array('id'=>$question['id']));
-						$update = 1;
-					}
-				}
-				$prev = $question['number'];
-			}
-		}
-
-		//
 		// Check if question number should be reduced to be at end of list.
 		//
 		$strsql = "SELECT MAX(qnumber) AS maxnumber "
@@ -205,46 +88,47 @@ function ciniki_surveys_questionUpdate(&$ciniki) {
 			return $rc;
 		}
 		if( isset($rc['number']) && $rc['number']['maxnumber'] < ($args['number']-1) ) {
-			$args['number'] = $rc['number']['maxnumber'] + 1;
+			$args['number'] = $rc['number']['maxnumber']+1;
 			$args['qnumber'] = $args['number'];
 		}
 	}
 
-	//
-	// Add all the fields to the change log
-	//
-	$strsql = "UPDATE ciniki_survey_questions SET last_updated = UTC_TIMESTAMP() ";
-
-	$changelog_fields = array(
-		'status',
-		'qtype',
-		'qnumber',
-		'question',
-		'option1',
-		'option2',
-		'option3',
-		'option4',
-		'option5',
-		);
-	foreach($changelog_fields as $field) {
-		if( isset($args[$field]) ) {
-			$strsql .= ", $field = '" . ciniki_core_dbQuote($ciniki, $args[$field]) . "' ";
-			$rc = ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 
-				'ciniki_survey_history', $args['business_id'], 
-				2, 'ciniki_survey_questions', $args['question_id'], $field, $args[$field]);
-		}
+	//  
+	// Turn off autocommit
+	//  
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionStart');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionRollback');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbTransactionCommit');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuote');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbInsert');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbUpdate');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDelete');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbAddModuleHistory');
+	$rc = ciniki_core_dbTransactionStart($ciniki, 'ciniki.surveys');
+	if( $rc['stat'] != 'ok' ) { 
+		return $rc;
 	}
-	$strsql .= "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-		. "AND id = '" . ciniki_core_dbQuote($ciniki, $args['question_id']) . "' "
-		. "";
-	$rc = ciniki_core_dbUpdate($ciniki, $strsql, 'ciniki.surveys');
+
+	//
+	// Update the question
+	//
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
+	$rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.surveys.question', $args['question_id'], $args, 0x04);
 	if( $rc['stat'] != 'ok' ) {
 		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.surveys');
 		return $rc;
 	}
-	if( !isset($rc['num_affected_rows']) || $rc['num_affected_rows'] != 1 ) {
-		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.surveys');
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1067', 'msg'=>'Unable to update survey question'));	
+
+	// 
+	// Update the question numbers
+	//
+	if( isset($args['number']) ) {
+		ciniki_core_loadMethod($ciniki, 'ciniki', 'surveys', 'private', 'updateQuestionNumbers');
+		$rc = ciniki_surveys_updateQuestionNumbers($ciniki, $args['business_id'], $survey_id, $args['question_id'], $args['qnumber'], $old_number);
+		if( $rc['stat'] != 'ok' ) {
+			ciniki_core_dbTransactionRollback($ciniki, 'ciniki.surveys');
+			return $rc;
+		}
 	}
 
 	//
@@ -261,9 +145,6 @@ function ciniki_surveys_questionUpdate(&$ciniki) {
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
 	ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'surveys');
-
-	$ciniki['syncqueue'][] = array('push'=>'ciniki.surveys.question', 
-		'args'=>array('id'=>$args['question_id']));
 
 	return array('stat'=>'ok');
 }

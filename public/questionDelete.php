@@ -82,7 +82,7 @@ function ciniki_surveys_questionDelete(&$ciniki) {
 	$db_updated = 0;
 	if( $status == '5' ) {
 		//
-		// Start building the delete SQL
+		// Survey has not been published, we are safe to delete question
 		//
 		$strsql = "DELETE FROM ciniki_survey_questions "
 			. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
@@ -106,7 +106,7 @@ function ciniki_surveys_questionDelete(&$ciniki) {
 		$db_updated = 1;
 	} elseif( $status != '60' ) {
 		//
-		// Update the status of the question to be deleted
+		// Survey has been activated/published, we can only disable questions now
 		//
 		$strsql = "UPDATE ciniki_survey_questions SET status = 60, last_updated = UTC_TIMESTAMP() "
 			. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
@@ -123,6 +123,16 @@ function ciniki_surveys_questionDelete(&$ciniki) {
 		$ciniki['syncqueue'][] = array('push'=>'ciniki.surveys.question', 
 			'args'=>array('id'=>$args['question_id']));
 		$db_updated = 1;
+	}
+
+	// 
+	// Update the question numbers
+	//
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'surveys', 'private', 'updateQuestionNumbers');
+	$rc = ciniki_surveys_updateQuestionNumbers($ciniki, $args['business_id'], $survey_id, 0, 0, -1);
+	if( $rc['stat'] != 'ok' ) {
+		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.surveys');
+		return $rc;
 	}
 
 	//
