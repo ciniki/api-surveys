@@ -59,7 +59,6 @@ function ciniki_surveys_questionAdd(&$ciniki) {
 		. "";
 	$rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.surveys', 'number');
 	if( $rc['stat'] != 'ok' ) {
-		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.surveys');
 		return $rc;
 	}
 	if( isset($rc['number']) && $rc['number']['maxnumber'] < ($args['number']-1) ) {
