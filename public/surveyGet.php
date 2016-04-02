@@ -106,7 +106,7 @@ function ciniki_surveys_surveyGet($ciniki) {
 
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'web', 'private', 'processContent');
 	if( isset($survey['instructions']) ) {
-		$rc = ciniki_web_processContent($ciniki, $survey['instructions']);
+		$rc = ciniki_web_processContent($ciniki, array(), $survey['instructions']);
 		$survey['instructions-html'] = $rc['content'];
 	}
 
