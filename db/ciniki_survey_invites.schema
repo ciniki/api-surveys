@@ -4,54 +4,54 @@
 #
 # Fields
 # -------
-# id:				The id of the survey invite.
-# uuid:				The Universal Unique ID.
-# business_id:		The business the item is attached to.
+# id:               The id of the survey invite.
+# uuid:             The Universal Unique ID.
+# business_id:      The business the item is attached to.
 #
-# survey_id:		The ID of the survey the invite is for.
-# mailing_id:		The ID of the mailing the survey was sent in.
-# customer_id:		The ID of the customer the invite is for.
+# survey_id:        The ID of the survey the invite is for.
+# mailing_id:       The ID of the mailing the survey was sent in.
+# customer_id:      The ID of the customer the invite is for.
 #
-# status:			The status of the invite.  Invites can only be used
-#					once to fill out a survey.  Once that status is in responded,
-#					then the permalink will no longer work to log them into the website,
-#					or allow them to fill out the survey.  They can read the survey
-#					as many times as they want before the date_expires.
+# status:           The status of the invite.  Invites can only be used
+#                   once to fill out a survey.  Once that status is in responded,
+#                   then the permalink will no longer work to log them into the website,
+#                   or allow them to fill out the survey.  They can read the survey
+#                   as many times as they want before the date_expires.
 #
-#					0 - unknown
-#					5 - created
-#					10 - sent
-#					20 - read
-#					30 - responded
+#                   0 - unknown
+#                   5 - created
+#                   10 - sent
+#                   20 - read
+#                   30 - responded
 #
-# permalink:		This should be the UUID of the invite, but can be changed to something else if required in the future.
+# permalink:        This should be the UUID of the invite, but can be changed to something else if required in the future.
 #
-# date_sent;		The UTC date and time the invite was sent to the customer.
-# date_seen:		The UTC date and time the customer clicked on the link and saw the survey.
-# date_answered:	The UTC date and time the customer submitted the survey.
-# user_agent:		The Browser user agent string from the browser the user filled out the survey.
-# date_expires:		The UTC date and time the survey expires, and can no longer be filled out.
+# date_sent;        The UTC date and time the invite was sent to the customer.
+# date_seen:        The UTC date and time the customer clicked on the link and saw the survey.
+# date_answered:    The UTC date and time the customer submitted the survey.
+# user_agent:       The Browser user agent string from the browser the user filled out the survey.
+# date_expires:     The UTC date and time the survey expires, and can no longer be filled out.
 # 
 # date_added:       The UTC date and time the invite was added.
 # last_updated:     The UTC date and time the invite was last updated.
 #
 create table ciniki_survey_invites (
-	id int not null auto_increment,
-	uuid char(36) not null,
-	business_id int not null,
-	survey_id int not null,
-	mailing_id int not null,
-	customer_id int not null,
-	status tinyint unsigned not null,
-	permalink varchar(100) not null,
-	date_sent datetime not null,
-	date_seen datetime not null,
-	date_answered datetime not null,
-	answered_user_agent varchar(250) not null,
-	date_expires datetime not null,
-	date_added datetime not null,
-	last_updated datetime not null,
-	primary key(id),
-	index sync (business_id, uuid, last_updated),
-	unique index permalink (business_id, permalink)
+    id int not null auto_increment,
+    uuid char(36) not null,
+    business_id int not null,
+    survey_id int not null,
+    mailing_id int not null,
+    customer_id int not null,
+    status tinyint unsigned not null,
+    permalink varchar(100) not null,
+    date_sent datetime not null,
+    date_seen datetime not null,
+    date_answered datetime not null,
+    answered_user_agent varchar(250) not null,
+    date_expires datetime not null,
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key(id),
+    index sync (business_id, uuid, last_updated),
+    unique index permalink (business_id, permalink)
 ) ENGINE='InnoDB', COMMENT='v1.01';

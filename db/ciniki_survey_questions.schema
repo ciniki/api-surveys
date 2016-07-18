@@ -4,54 +4,54 @@
 #
 # Fields
 # -------
-# id:				The id of the survey question.
-# uuid:				The Universal Unique ID.
-# business_id:		The business the item is attached to.
+# id:               The id of the survey question.
+# uuid:             The Universal Unique ID.
+# business_id:      The business the item is attached to.
 #
-# survey_id:		The ID of the survey the question is attached to.
-# status:			Never delete a question, as there might be answers.
+# survey_id:        The ID of the survey the question is attached to.
+# status:           Never delete a question, as there might be answers.
 #
-#					0 - unknown
-#					10 - Active
-#					60 - Deleted
+#                   0 - unknown
+#                   10 - Active
+#                   60 - Deleted
 #
-# qnumber:			The question number, used to sort questions for display.
-# qtype:			The type of question.
+# qnumber:          The question number, used to sort questions for display.
+# qtype:            The type of question.
 #
-#					0 - unknown
-#					10 - text
-#					11 - textarea **future**
-#					15 - number **future**
-#					20 - multiple choice (one answer) **future**
-#					21 - multiple choice (multi answer) **future**
+#                   0 - unknown
+#                   10 - text
+#                   11 - textarea **future**
+#                   15 - number **future**
+#                   20 - multiple choice (one answer) **future**
+#                   21 - multiple choice (multi answer) **future**
 #
-# question:			The question.
+# question:         The question.
 #
-# option1:			The first multiple choice answer. **future**
-# option2:			The second multiple choice answer. **future**
-# option3:			The third multiple choice answer. **future**
-# option4:			The fourth multiple choice answer. **future**
-# option5:			The fifth multiple choice answer. **future**
+# option1:          The first multiple choice answer. **future**
+# option2:          The second multiple choice answer. **future**
+# option3:          The third multiple choice answer. **future**
+# option4:          The fourth multiple choice answer. **future**
+# option5:          The fifth multiple choice answer. **future**
 #
 # date_added:       The UTC date and time the question was added.
 # last_updated:     The UTC date and time the question was last updated.
 #
 create table ciniki_survey_questions (
-	id int not null auto_increment,
-	uuid char(36) not null,
-	business_id int not null,
-	survey_id int not null,
-	status tinyint unsigned not null,
-	qnumber tinyint unsigned not null,
-	qtype tinyint unsigned not null,
-	question varchar(250) not null,
-	option1 varchar(250) not null,
-	option2 varchar(250) not null,
-	option3 varchar(250) not null,
-	option4 varchar(250) not null,
-	option5 varchar(250) not null,
-	date_added datetime not null,
-	last_updated datetime not null,
-	primary key(id),
-	index sync (business_id, uuid, last_updated)
+    id int not null auto_increment,
+    uuid char(36) not null,
+    business_id int not null,
+    survey_id int not null,
+    status tinyint unsigned not null,
+    qnumber tinyint unsigned not null,
+    qtype tinyint unsigned not null,
+    question varchar(250) not null,
+    option1 varchar(250) not null,
+    option2 varchar(250) not null,
+    option3 varchar(250) not null,
+    option4 varchar(250) not null,
+    option5 varchar(250) not null,
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key(id),
+    index sync (business_id, uuid, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.01';
