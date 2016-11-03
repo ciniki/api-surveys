@@ -73,7 +73,7 @@ function ciniki_surveys_questionGet($ciniki) {
         return $rc;
     }
     if( !isset($rc['questions']) && !isset($rc['questions'][0]['question']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1060', 'msg'=>'Unable to find question'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.surveys.7', 'msg'=>'Unable to find question'));
     }
 
     $question = $rc['questions'][0]['question'];

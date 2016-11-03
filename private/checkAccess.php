@@ -27,7 +27,7 @@ function ciniki_surveys_checkAccess($ciniki, $business_id, $method) {
     $modules = $rc['modules'];
 
     if( !isset($rc['ruleset']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1039', 'msg'=>'No permissions granted'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.surveys.1', 'msg'=>'No permissions granted'));
     }
 
     //
@@ -63,6 +63,6 @@ function ciniki_surveys_checkAccess($ciniki, $business_id, $method) {
     //
     // By default, fail
     //
-    return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1040', 'msg'=>'Access denied.'));
+    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.surveys.2', 'msg'=>'Access denied.'));
 }
 ?>

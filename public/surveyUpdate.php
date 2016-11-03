@@ -97,7 +97,7 @@ function ciniki_surveys_surveyUpdate(&$ciniki) {
     }
     if( !isset($rc['num_affected_rows']) || $rc['num_affected_rows'] != 1 ) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.surveys');
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1053', 'msg'=>'Unable to update survey'));  
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.surveys.11', 'msg'=>'Unable to update survey'));  
     }
 
     //

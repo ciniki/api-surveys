@@ -65,7 +65,7 @@ function ciniki_surveys_questionUpdate(&$ciniki) {
         return $rc;
     }
     if( !isset($rc['question']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1066', 'msg'=>'Unable to find survey question'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.surveys.8', 'msg'=>'Unable to find survey question'));
     }
     $question = $rc['question'];
     $survey_id = $question['survey_id'];

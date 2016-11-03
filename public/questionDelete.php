@@ -69,7 +69,7 @@ function ciniki_surveys_questionDelete(&$ciniki) {
         return $rc;
     }
     if( !isset($rc['question']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1059', 'msg'=>'Unable to find question'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.surveys.5', 'msg'=>'Unable to find question'));
     }
     $uuid = $rc['question']['uuid'];
     $survey_id = $rc['question']['survey_id'];
@@ -96,7 +96,7 @@ function ciniki_surveys_questionDelete(&$ciniki) {
         }
         if( !isset($rc['num_affected_rows']) || $rc['num_affected_rows'] != 1 ) {
             ciniki_core_dbTransactionRollback($ciniki, 'ciniki.surveys');
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1058', 'msg'=>'Unable to delete question'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.surveys.6', 'msg'=>'Unable to delete question'));
         }
 
         $rc = ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', 

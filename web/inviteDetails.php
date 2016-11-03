@@ -59,7 +59,7 @@ function ciniki_surveys_web_inviteDetails(&$ciniki, $settings, $business_id, $pe
         return $rc;
     }
     if( !isset($rc['surveys'][0]['survey']) ) {
-        return array('stat'=>'noexist', 'err'=>array('pkg'=>'ciniki', 'code'=>'1072', 'msg'=>'The survey does not exist'));
+        return array('stat'=>'noexist', 'err'=>array('code'=>'ciniki.surveys.12', 'msg'=>'The survey does not exist'));
     }
     $survey = $rc['surveys'][0]['survey'];
 

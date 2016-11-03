@@ -93,7 +93,7 @@ function ciniki_surveys_surveyAdd(&$ciniki) {
     }
     if( !isset($rc['insert_id']) || $rc['insert_id'] < 1 ) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.surveys');
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'1065', 'msg'=>'Unable to add survey'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.surveys.9', 'msg'=>'Unable to add survey'));
     }
     $survey_id = $rc['insert_id'];
 
