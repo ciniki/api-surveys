@@ -7,7 +7,7 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:         The ID of the business to update the survey for.
+// tnid:         The ID of the tenant to update the survey for.
 //
 // Returns
 // -------
@@ -19,7 +19,7 @@ function ciniki_surveys_surveyUpdate(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'survey_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Survey'),
         'name'=>array('required'=>'no', 'trimblanks'=>'yes', 'blank'=>'no', 'name'=>'Name'),
         'status'=>array('required'=>'no', 'blank'=>'no', 'validlist'=>array('5','10','40','60'), 'name'=>'Status'),
@@ -33,10 +33,10 @@ function ciniki_surveys_surveyUpdate(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'surveys', 'private', 'checkAccess');
-    $rc = ciniki_surveys_checkAccess($ciniki, $args['business_id'], 'ciniki.surveys.surveyUpdate'); 
+    $rc = ciniki_surveys_checkAccess($ciniki, $args['tnid'], 'ciniki.surveys.surveyUpdate'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -77,17 +77,17 @@ function ciniki_surveys_surveyUpdate(&$ciniki) {
             if( $field == 'date_expires' ) {
                 $strsql .= ", $field = CONVERT_TZ('" . ciniki_core_dbQuote($ciniki, $args[$field]) . "', '" . ciniki_core_dbQuote($ciniki, $utc_offset) . "', '+00:00') ";
                 $rc = ciniki_core_dbAddModuleHistoryReformat($ciniki, 'ciniki.surveys', 
-                    'ciniki_survey_history', $args['business_id'], 
+                    'ciniki_survey_history', $args['tnid'], 
                     2, 'ciniki_surveys', $args['survey_id'], $field, $args[$field], 'utcdate');
             } else {
                 $strsql .= ", $field = '" . ciniki_core_dbQuote($ciniki, $args[$field]) . "' ";
                 $rc = ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 
-                    'ciniki_survey_history', $args['business_id'], 
+                    'ciniki_survey_history', $args['tnid'], 
                     2, 'ciniki_surveys', $args['survey_id'], $field, $args[$field]);
             }
         }
     }
-    $strsql .= "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+    $strsql .= "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND id = '" . ciniki_core_dbQuote($ciniki, $args['survey_id']) . "' "
         . "";
     $rc = ciniki_core_dbUpdate($ciniki, $strsql, 'ciniki.surveys');
@@ -109,11 +109,11 @@ function ciniki_surveys_surveyUpdate(&$ciniki) {
     }
 
     //
-    // Update the last_change date in the business modules
+    // Update the last_change date in the tenant modules
     // Ignore the result, as we don't want to stop user updates if this fails.
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
-    ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'surveys');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'updateModuleChangeDate');
+    ciniki_tenants_updateModuleChangeDate($ciniki, $args['tnid'], 'ciniki', 'surveys');
 
     $ciniki['syncqueue'][] = array('push'=>'ciniki.surveys.survey', 
         'args'=>array('id'=>$args['survey_id']));

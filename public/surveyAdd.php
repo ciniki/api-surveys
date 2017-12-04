@@ -7,7 +7,7 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:         The ID of the business to add the survey to.
+// tnid:         The ID of the tenant to add the survey to.
 //
 // Returns
 // -------
@@ -19,7 +19,7 @@ function ciniki_surveys_surveyAdd(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'name'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Type'),
         'status'=>array('required'=>'yes', 'blank'=>'no', 'validlist'=>array('5', '10', '40', '60'), 'name'=>'Status'),
         'instructions'=>array('required'=>'no', 'default'=>'', 'blank'=>'yes', 'name'=>'Instructions'),
@@ -32,10 +32,10 @@ function ciniki_surveys_surveyAdd(&$ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'surveys', 'private', 'checkAccess');
-    $rc = ciniki_surveys_checkAccess($ciniki, $args['business_id'], 'ciniki.surveys.surveyAdd'); 
+    $rc = ciniki_surveys_checkAccess($ciniki, $args['tnid'], 'ciniki.surveys.surveyAdd'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }
@@ -72,11 +72,11 @@ function ciniki_surveys_surveyAdd(&$ciniki) {
     //
     // Add the survey to the database
     //
-    $strsql = "INSERT INTO ciniki_surveys (uuid, business_id, "
+    $strsql = "INSERT INTO ciniki_surveys (uuid, tnid, "
         . "name, status, instructions, date_expires, "
         . "date_added, last_updated) VALUES ("
         . "'" . ciniki_core_dbQuote($ciniki, $args['uuid']) . "', "
-        . "'" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "', "
+        . "'" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "', "
         . "'" . ciniki_core_dbQuote($ciniki, $args['name']) . "', "
         . "'" . ciniki_core_dbQuote($ciniki, $args['status']) . "', "
         . "'" . ciniki_core_dbQuote($ciniki, $args['instructions']) . "', ";
@@ -109,12 +109,12 @@ function ciniki_surveys_surveyAdd(&$ciniki) {
     foreach($changelog_fields as $field) {
         if( isset($args[$field]) && $args[$field] != '' ) {
             $rc = ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 
-                'ciniki_survey_history', $args['business_id'], 
+                'ciniki_survey_history', $args['tnid'], 
                 1, 'ciniki_surveys', $survey_id, $field, $args[$field]);
         }
     }
     $rc = ciniki_core_dbAddModuleHistoryReformat($ciniki, 'ciniki.surveys', 
-        'ciniki_survey_history', $args['business_id'], 
+        'ciniki_survey_history', $args['tnid'], 
         1, 'ciniki_surveys', $survey_id, 'date_expires', $args['date_expires'], 'utcdate') ;
 
     //
@@ -132,11 +132,11 @@ function ciniki_surveys_surveyAdd(&$ciniki) {
     }
 
     //
-    // Update the last_change date in the business modules
+    // Update the last_change date in the tenant modules
     // Ignore the result, as we don't want to stop user updates if this fails.
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
-    ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'surveys');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'updateModuleChangeDate');
+    ciniki_tenants_updateModuleChangeDate($ciniki, $args['tnid'], 'ciniki', 'surveys');
 
     return array('stat'=>'ok', 'id'=>$survey_id);
 }

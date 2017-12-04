@@ -17,7 +17,7 @@ function ciniki_surveys_surveyGet($ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'survey_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Survey'),
         'questions'=>array('required'=>'no', 'name'=>'Questions'),
         'stats'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Stats'),
@@ -29,10 +29,10 @@ function ciniki_surveys_surveyGet($ciniki) {
 
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'surveys', 'private', 'checkAccess');
-    $rc = ciniki_surveys_checkAccess($ciniki, $args['business_id'], 'ciniki.surveys.surveyGet', 0); 
+    $rc = ciniki_surveys_checkAccess($ciniki, $args['tnid'], 'ciniki.surveys.surveyGet', 0); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }   
@@ -59,8 +59,8 @@ function ciniki_surveys_surveyGet($ciniki) {
             . "FROM ciniki_surveys "
             . "LEFT JOIN ciniki_survey_questions ON (ciniki_surveys.id = ciniki_survey_questions.survey_id "
                 . "AND ciniki_survey_questions.status = 10 "
-                . "AND ciniki_survey_questions.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "') "
-            . "WHERE ciniki_surveys.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "AND ciniki_survey_questions.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "') "
+            . "WHERE ciniki_surveys.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND ciniki_surveys.id = '" . ciniki_core_dbQuote($ciniki, $args['survey_id']) . "' "
             . "ORDER BY ciniki_surveys.id ASC, ciniki_survey_questions.qnumber "
             . "";
@@ -81,7 +81,7 @@ function ciniki_surveys_surveyGet($ciniki) {
             . "ciniki_surveys.name, instructions, "
             . "IFNULL(DATE_FORMAT(CONVERT_TZ(date_expires, '+00:00', '" . ciniki_core_dbQuote($ciniki, $utc_offset) . "'), '" . ciniki_core_dbQuote($ciniki, $date_format) . "'), '') AS date_expires "
             . "FROM ciniki_surveys "
-            . "WHERE ciniki_surveys.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE ciniki_surveys.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND ciniki_surveys.id = '" . ciniki_core_dbQuote($ciniki, $args['survey_id']) . "' "
             . "ORDER BY ciniki_surveys.id ASC ";
 
@@ -118,7 +118,7 @@ function ciniki_surveys_surveyGet($ciniki) {
         $question['stats'] = array();
         $strsql = "SELECT status, COUNT(ciniki_survey_invites.id) "
             . "FROM ciniki_survey_invites "
-            . "WHERE ciniki_survey_invites.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE ciniki_survey_invites.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND ciniki_survey_invites.survey_id = '" . ciniki_core_dbQuote($ciniki, $args['survey_id']) . "' "
             . "GROUP BY status "
             . "";

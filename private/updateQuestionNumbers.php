@@ -12,13 +12,13 @@
 // =======
 // <rsp stat="ok" />
 //
-function ciniki_surveys_updateQuestionNumbers($ciniki, $business_id, $survey_id, $question_id, $question_number, $old_number) {
+function ciniki_surveys_updateQuestionNumbers($ciniki, $tnid, $survey_id, $question_id, $question_number, $old_number) {
     //
     // Get the questions
     //
     $strsql = "SELECT id, qnumber AS number "
         . "FROM ciniki_survey_questions "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND survey_id = '" . ciniki_core_dbQuote($ciniki, $survey_id) . "' "
         . "AND status = 10 "
         . "";
@@ -45,7 +45,7 @@ function ciniki_surveys_updateQuestionNumbers($ciniki, $business_id, $survey_id,
                 $strsql = "UPDATE ciniki_survey_questions SET "
                     . "qnumber = '" . ciniki_core_dbQuote($ciniki, $cur_number) . "' "
                     . ", last_updated = UTC_TIMESTAMP() "
-                    . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                    . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                     . "AND survey_id = '" . ciniki_core_dbQuote($ciniki, $survey_id) . "' "
                     . "AND id = '" . ciniki_core_dbQuote($ciniki, $question['id']) . "' "
                     . "";
@@ -54,7 +54,7 @@ function ciniki_surveys_updateQuestionNumbers($ciniki, $business_id, $survey_id,
                     ciniki_core_dbTransactionRollback($ciniki, 'ciniki.surveys');
                 }
                 ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 
-                    'ciniki_survey_history', $business_id, 
+                    'ciniki_survey_history', $tnid, 
                     2, 'ciniki_survey_questions', $question['id'], 'qnumber', $cur_number);
                 $ciniki['syncqueue'][] = array('push'=>'ciniki.surveys.question', 
                     'args'=>array('id'=>$question['id']));

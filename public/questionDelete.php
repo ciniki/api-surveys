@@ -9,7 +9,7 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:         The ID of the business to remove the question from.
+// tnid:         The ID of the tenant to remove the question from.
 // question_id:         The ID of the question to remove.
 // 
 // Returns
@@ -22,7 +22,7 @@ function ciniki_surveys_questionDelete(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'question_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Question'), 
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -32,10 +32,10 @@ function ciniki_surveys_questionDelete(&$ciniki) {
     
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'surveys', 'private', 'checkAccess');
-    $rc = ciniki_surveys_checkAccess($ciniki, $args['business_id'], 'ciniki.surveys.questionDelete'); 
+    $rc = ciniki_surveys_checkAccess($ciniki, $args['tnid'], 'ciniki.surveys.questionDelete'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }   
@@ -60,8 +60,8 @@ function ciniki_surveys_questionDelete(&$ciniki) {
         . "ciniki_surveys.status "
         . "FROM ciniki_survey_questions "
         . "LEFT JOIN ciniki_surveys ON (ciniki_survey_questions.survey_id = ciniki_surveys.id "
-            . "AND ciniki_surveys.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "') "
-        . "WHERE ciniki_survey_questions.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_surveys.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "') "
+        . "WHERE ciniki_survey_questions.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND ciniki_survey_questions.id = '" . ciniki_core_dbQuote($ciniki, $args['question_id']) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.surveys', 'question');
@@ -85,7 +85,7 @@ function ciniki_surveys_questionDelete(&$ciniki) {
         // Survey has not been published, we are safe to delete question
         //
         $strsql = "DELETE FROM ciniki_survey_questions "
-            . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND id = '" . ciniki_core_dbQuote($ciniki, $args['question_id']) . "' "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbDelete');
@@ -100,7 +100,7 @@ function ciniki_surveys_questionDelete(&$ciniki) {
         }
 
         $rc = ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', 
-            $args['business_id'], 3, 'ciniki_survey_questions', $args['question_id'], '*', '');
+            $args['tnid'], 3, 'ciniki_survey_questions', $args['question_id'], '*', '');
         $ciniki['syncqueue'][] = array('push'=>'ciniki.surveys.question', 
             'args'=>array('delete_uuid'=>$uuid, 'delete_id'=>$args['question_id']));
         $db_updated = 1;
@@ -109,7 +109,7 @@ function ciniki_surveys_questionDelete(&$ciniki) {
         // Survey has been activated/published, we can only disable questions now
         //
         $strsql = "UPDATE ciniki_survey_questions SET status = 60, last_updated = UTC_TIMESTAMP() "
-            . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND id = '" . ciniki_core_dbQuote($ciniki, $args['question_id']) . "' "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbUpdate');
@@ -119,7 +119,7 @@ function ciniki_surveys_questionDelete(&$ciniki) {
             return $rc;
         }
         $rc = ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', 
-            $args['business_id'], 2, 'ciniki_survey_questions', $args['question_id'], 'status', '60');
+            $args['tnid'], 2, 'ciniki_survey_questions', $args['question_id'], 'status', '60');
         $ciniki['syncqueue'][] = array('push'=>'ciniki.surveys.question', 
             'args'=>array('id'=>$args['question_id']));
         $db_updated = 1;
@@ -129,7 +129,7 @@ function ciniki_surveys_questionDelete(&$ciniki) {
     // Update the question numbers
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'surveys', 'private', 'updateQuestionNumbers');
-    $rc = ciniki_surveys_updateQuestionNumbers($ciniki, $args['business_id'], $survey_id, 0, 0, -1);
+    $rc = ciniki_surveys_updateQuestionNumbers($ciniki, $args['tnid'], $survey_id, 0, 0, -1);
     if( $rc['stat'] != 'ok' ) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.surveys');
         return $rc;
@@ -144,12 +144,12 @@ function ciniki_surveys_questionDelete(&$ciniki) {
     }
 
     //
-    // Update the last_change date in the business modules
+    // Update the last_change date in the tenant modules
     // Ignore the result, as we don't want to stop user updates if this fails.
     //
     if( $db_updated > 0 ) {
-        ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
-        ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'surveys');
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'updateModuleChangeDate');
+        ciniki_tenants_updateModuleChangeDate($ciniki, $args['tnid'], 'ciniki', 'surveys');
     }
 
     return array('stat'=>'ok');

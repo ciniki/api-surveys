@@ -1,7 +1,7 @@
-Ciniki - Small Business Management Platform
+Ciniki - Multitenant Cloud Platform
 ===========================================
 
-The surveys module allows business owners to create customer surveys and track the results.
+The surveys module allows tenant owners to create customer surveys and track the results.
 
 License
 -------

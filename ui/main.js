@@ -157,7 +157,7 @@ function ciniki_surveys_main() {
             return this.data[i];
         };
         this.edit.fieldHistoryArgs = function(s, i) {
-            return {'method':'ciniki.surveys.surveyHistory', 'args':{'business_id':M.curBusinessID, 
+            return {'method':'ciniki.surveys.surveyHistory', 'args':{'tnid':M.curTenantID, 
                 'survey_id':M.ciniki_surveys_main.edit.survey_id, 'field':i}};
         };
 
@@ -270,7 +270,7 @@ function ciniki_surveys_main() {
             return this.data[i];
         };
         this.editquestion.fieldHistoryArgs = function(s, i) {
-            return {'method':'ciniki.surveys.questionHistory', 'args':{'business_id':M.curBusinessID, 
+            return {'method':'ciniki.surveys.questionHistory', 'args':{'tnid':M.curTenantID, 
                 'question_id':M.ciniki_surveys_main.editquestion.question_id, 'field':i}};
         };
         this.editquestion.addButton('save', 'Save', 'M.ciniki_surveys_main.saveQuestion();');
@@ -305,10 +305,10 @@ function ciniki_surveys_main() {
     }
 
     //
-    // Grab the stats for the business from the database and present the list of orders.
+    // Grab the stats for the tenant from the database and present the list of orders.
     //
     this.showMenu = function(cb) {
-        var rsp = M.api.getJSONCb('ciniki.surveys.surveyListByStatus', {'business_id':M.curBusinessID}, function(rsp) {
+        var rsp = M.api.getJSONCb('ciniki.surveys.surveyListByStatus', {'tnid':M.curTenantID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -346,7 +346,7 @@ function ciniki_surveys_main() {
             this.survey.survey_id = sid;
         }
         var rsp = M.api.getJSONCb('ciniki.surveys.surveyGet', 
-            {'business_id':M.curBusinessID, 'survey_id':this.survey.survey_id, 'questions':'yes', 'stats':'yes'}, function(rsp) {
+            {'tnid':M.curTenantID, 'survey_id':this.survey.survey_id, 'questions':'yes', 'stats':'yes'}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -373,7 +373,7 @@ function ciniki_surveys_main() {
         }
         if( this.edit.survey_id > 0 ) {
             var rsp = M.api.getJSONCb('ciniki.surveys.surveyGet', 
-                {'business_id':M.curBusinessID, 'survey_id':this.edit.survey_id}, function(rsp) {
+                {'tnid':M.curTenantID, 'survey_id':this.edit.survey_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;
@@ -396,7 +396,7 @@ function ciniki_surveys_main() {
             var c = this.edit.serializeForm('no');
             if( c != '' ) {
                 var rsp = M.api.postJSONCb('ciniki.surveys.surveyUpdate', 
-                    {'business_id':M.curBusinessID, 'survey_id':this.edit.survey_id}, c, function(rsp) {
+                    {'tnid':M.curTenantID, 'survey_id':this.edit.survey_id}, c, function(rsp) {
                         if( rsp.stat != 'ok' ) {
                             M.api.err(rsp);
                             return false;
@@ -407,7 +407,7 @@ function ciniki_surveys_main() {
         } else {
             var c = this.edit.serializeForm('yes');
             var rsp = M.api.postJSONCb('ciniki.surveys.surveyAdd', 
-                {'business_id':M.curBusinessID, 'status':'5'}, c, function(rsp) {
+                {'tnid':M.curTenantID, 'status':'5'}, c, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;
@@ -426,7 +426,7 @@ function ciniki_surveys_main() {
         }
         if( this.question.question_id > 0 ) {
             var rsp = M.api.getJSONCb('ciniki.surveys.questionGet', 
-                {'business_id':M.curBusinessID, 'question_id':this.question.question_id,
+                {'tnid':M.curTenantID, 'question_id':this.question.question_id,
                 'stats':'yes', 'top_answers':5, 'answers':'yes'}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
@@ -463,7 +463,7 @@ function ciniki_surveys_main() {
         }
         if( this.editquestion.question_id > 0 ) {
             var rsp = M.api.getJSONCb('ciniki.surveys.questionGet', 
-                {'business_id':M.curBusinessID, 'question_id':this.editquestion.question_id}, function(rsp) {
+                {'tnid':M.curTenantID, 'question_id':this.editquestion.question_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;
@@ -486,7 +486,7 @@ function ciniki_surveys_main() {
             var c = this.editquestion.serializeForm('no');
             if( c != '' ) {
                 var rsp = M.api.postJSONCb('ciniki.surveys.questionUpdate', 
-                    {'business_id':M.curBusinessID, 'question_id':this.editquestion.question_id}, c, function(rsp) {
+                    {'tnid':M.curTenantID, 'question_id':this.editquestion.question_id}, c, function(rsp) {
                         if( rsp.stat != 'ok' ) {
                             M.api.err(rsp);
                             return false;
@@ -499,7 +499,7 @@ function ciniki_surveys_main() {
         } else {
             var c = this.editquestion.serializeForm('yes');
             var rsp = M.api.postJSONCb('ciniki.surveys.questionAdd', 
-                {'business_id':M.curBusinessID, 'survey_id':this.editquestion.survey_id, 
+                {'tnid':M.curTenantID, 'survey_id':this.editquestion.survey_id, 
                     'type':10, 'status':10}, c, function(rsp) {
                         if( rsp.stat != 'ok' ) {
                             M.api.err(rsp);
@@ -512,7 +512,7 @@ function ciniki_surveys_main() {
 
     this.deleteQuestion = function() {
         if( confirm('Are you sure you want to delete this question?') ) {
-            var rsp = M.api.getJSONCb('ciniki.surveys.questionDelete', {'business_id':M.curBusinessID, 
+            var rsp = M.api.getJSONCb('ciniki.surveys.questionDelete', {'tnid':M.curTenantID, 
                 'question_id':this.editquestion.question_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);

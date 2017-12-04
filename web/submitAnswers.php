@@ -7,12 +7,12 @@
 // ---------
 // ciniki:
 // settings:        The web settings structure.
-// business_id:     The ID of the business to get events for.
+// tnid:     The ID of the tenant to get events for.
 //
 // Returns
 // -------
 //
-function ciniki_surveys_web_submitAnswers(&$ciniki, $settings, $business_id, $permalink, $answers) {
+function ciniki_surveys_web_submitAnswers(&$ciniki, $settings, $tnid, $permalink, $answers) {
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuote');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
@@ -41,11 +41,11 @@ function ciniki_surveys_web_submitAnswers(&$ciniki, $settings, $business_id, $pe
         . "ciniki_survey_questions.question "
         . "FROM ciniki_survey_invites "
         . "LEFT JOIN ciniki_surveys ON (ciniki_survey_invites.survey_id = ciniki_surveys.id "
-            . "AND ciniki_surveys.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "') "
+            . "AND ciniki_surveys.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "') "
         . "LEFT JOIN ciniki_survey_questions ON (ciniki_survey_invites.survey_id = ciniki_survey_questions.survey_id "
             . "AND ciniki_survey_questions.status = 10 "
-            . "AND ciniki_survey_questions.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "') "
-        . "WHERE ciniki_survey_invites.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_survey_questions.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "') "
+        . "WHERE ciniki_survey_invites.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND ciniki_survey_invites.permalink = '" . ciniki_core_dbQuote($ciniki, $permalink) . "' "
         . "ORDER BY ciniki_survey_invites.id, ciniki_survey_questions.qnumber "
         . "";
@@ -96,12 +96,12 @@ function ciniki_surveys_web_submitAnswers(&$ciniki, $settings, $business_id, $pe
                 return $rc;
             }
             $uuid = $rc['uuid'];
-            $strsql = "INSERT INTO ciniki_survey_answers (uuid, business_id, "
+            $strsql = "INSERT INTO ciniki_survey_answers (uuid, tnid, "
                 . "survey_id, invite_id, customer_id, question_id, "
                 . "answer, "
                 . "date_added, last_updated) VALUES ("
                 . "'" . ciniki_core_dbQuote($ciniki, $uuid) . "', "
-                . "'" . ciniki_core_dbQuote($ciniki, $business_id) . "', "
+                . "'" . ciniki_core_dbQuote($ciniki, $tnid) . "', "
                 . "'" . ciniki_core_dbQuote($ciniki, $survey['id']) . "', "
                 . "'" . ciniki_core_dbQuote($ciniki, $survey['invite_id']) . "', "
                 . "'" . ciniki_core_dbQuote($ciniki, $survey['customer_id']) . "', "
@@ -113,17 +113,17 @@ function ciniki_surveys_web_submitAnswers(&$ciniki, $settings, $business_id, $pe
                 return $rc;
             }
             $answer_id = $rc['insert_id'];
-            ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $business_id,
+            ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $tnid,
                 1, 'ciniki_survey_answers', $answer_id, 'uuid', $uuid);
-            ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $business_id,
+            ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $tnid,
                 1, 'ciniki_survey_answers', $answer_id, 'survey_id', $survey['id']);
-            ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $business_id,
+            ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $tnid,
                 1, 'ciniki_survey_answers', $answer_id, 'invite_id', $survey['invite_id']);
-            ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $business_id,
+            ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $tnid,
                 1, 'ciniki_survey_answers', $answer_id, 'customer_id', $survey['customer_id']);
-            ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $business_id,
+            ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $tnid,
                 1, 'ciniki_survey_answers', $answer_id, 'question_id', $question['id']);
-            ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $business_id,
+            ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $tnid,
                 1, 'ciniki_survey_answers', $answer_id, 'answer', $answer);
         }
     }
@@ -136,7 +136,7 @@ function ciniki_surveys_web_submitAnswers(&$ciniki, $settings, $business_id, $pe
         $strsql .= "answered_user_agent = '" . ciniki_core_dbQuote($ciniki, $_SERVER['HTTP_USER_AGENT']) . "', ";
     }
     $strsql .= "last_updated = UTC_TIMESTAMP() "
-        . "WHERE ciniki_survey_invites.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE ciniki_survey_invites.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND ciniki_survey_invites.permalink = '" . ciniki_core_dbQuote($ciniki, $permalink) . "' "
         . "AND status < 30 "
         . "";
@@ -144,12 +144,12 @@ function ciniki_surveys_web_submitAnswers(&$ciniki, $settings, $business_id, $pe
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
-    ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $business_id,
+    ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $tnid,
         2, 'ciniki_survey_invites', $survey['invite_id'], 'status', '30');
-    ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $business_id,
+    ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $tnid,
         2, 'ciniki_survey_invites', $survey['invite_id'], 'date_answered', $utc_datetime);
     if( isset($_SERVER['HTTP_USER_AGENT']) ) {
-        ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $business_id,
+        ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $tnid,
             2, 'ciniki_survey_invites', $survey['invite_id'], 'answered_user_agent', $_SERVER['HTTP_USER_AGENT']);
     }
 

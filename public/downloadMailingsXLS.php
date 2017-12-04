@@ -8,7 +8,7 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:         The ID of the business to export all open orders for.
+// tnid:         The ID of the tenant to export all open orders for.
 //
 // Returns
 // -------
@@ -19,7 +19,7 @@ function ciniki_surveys_downloadMailingsXLS($ciniki) {
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -27,10 +27,10 @@ function ciniki_surveys_downloadMailingsXLS($ciniki) {
     $args = $rc['args'];
     
     //
-    // Check access to business_id
+    // Check access to tnid
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'surveys', 'private', 'checkAccess');
-    $ac = ciniki_surveys_checkAccess($ciniki, $args['business_id'], 'ciniki.surveys.downloadMailingsXLS');
+    $ac = ciniki_surveys_checkAccess($ciniki, $args['tnid'], 'ciniki.surveys.downloadMailingsXLS');
     if( $ac['stat'] != 'ok' ) {
         return $ac;
     }
@@ -62,25 +62,25 @@ function ciniki_surveys_downloadMailingsXLS($ciniki) {
         . "ciniki_survey_answers.answer "
         . "FROM ciniki_mailings "
         . "LEFT JOIN ciniki_surveys ON (ciniki_mailings.survey_id = ciniki_surveys.id "
-            . "AND ciniki_surveys.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_surveys.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
         . "LEFT JOIN ciniki_survey_invites ON (ciniki_surveys.id = ciniki_survey_invites.survey_id "
             . "AND ciniki_mailings.id = ciniki_survey_invites.mailing_id "
-            . "AND ciniki_survey_invites.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_survey_invites.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
         . "LEFT JOIN ciniki_customers ON (ciniki_survey_invites.customer_id = ciniki_customers.id "
             . "AND ciniki_customers.id > 0 "
-            . "AND ciniki_customers.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_customers.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
         . "LEFT JOIN ciniki_survey_questions ON (ciniki_surveys.id = ciniki_survey_questions.survey_id "
-            . "AND ciniki_survey_questions.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_survey_questions.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
         . "LEFT JOIN ciniki_survey_answers ON (ciniki_surveys.id = ciniki_survey_answers.survey_id "
             . "AND ciniki_survey_answers.question_id = ciniki_survey_questions.id "
             . "AND ciniki_survey_invites.customer_id = ciniki_survey_answers.customer_id "
-            . "AND ciniki_survey_answers.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_survey_answers.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
-        . "WHERE ciniki_mailings.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE ciniki_mailings.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND ciniki_mailings.survey_id > 0 "
         . "AND ciniki_customers.id > 0 "
         . "ORDER BY ciniki_mailings.date_added DESC, ciniki_customers.last, ciniki_customers.first, ciniki_surveys.id, ciniki_survey_questions.qnumber "

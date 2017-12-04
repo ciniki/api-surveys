@@ -13,7 +13,7 @@
 // =======
 // <rsp stat="ok" />
 //
-function ciniki_surveys_createCustomerInvite($ciniki, $business_id, $survey_id, $mailing_id, $customer_id, $args) {
+function ciniki_surveys_createCustomerInvite($ciniki, $tnid, $survey_id, $mailing_id, $customer_id, $args) {
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbUUID');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbInsert');
@@ -37,12 +37,12 @@ function ciniki_surveys_createCustomerInvite($ciniki, $business_id, $survey_id, 
     //
     // Add an entry in the invite table
     //
-    $strsql = "INSERT INTO ciniki_survey_invites (uuid, business_id, "
+    $strsql = "INSERT INTO ciniki_survey_invites (uuid, tnid, "
         . "survey_id, mailing_id, customer_id, status, "
         . "permalink, "
         . "date_added, last_updated) VALUES ("
         . "'" . ciniki_core_dbQuote($ciniki, $uuid) . "', "
-        . "'" . ciniki_core_dbQuote($ciniki, $business_id) . "', "
+        . "'" . ciniki_core_dbQuote($ciniki, $tnid) . "', "
         . "'" . ciniki_core_dbQuote($ciniki, $survey_id) . "', "
         . "'" . ciniki_core_dbQuote($ciniki, $mailing_id) . "', "
         . "'" . ciniki_core_dbQuote($ciniki, $customer_id) . "', "
@@ -55,17 +55,17 @@ function ciniki_surveys_createCustomerInvite($ciniki, $business_id, $survey_id, 
     }
     $invite_id = $rc['insert_id'];
 
-    ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $business_id,
+    ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $tnid,
         1, 'ciniki_survey_invites', $invite_id, 'uuid', $uuid);
-    ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $business_id,
+    ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $tnid,
         1, 'ciniki_survey_invites', $invite_id, 'survey_id', $survey_id);
-    ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $business_id,
+    ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $tnid,
         1, 'ciniki_survey_invites', $invite_id, 'mailing_id', $mailing_id);
-    ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $business_id,
+    ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $tnid,
         1, 'ciniki_survey_invites', $invite_id, 'customer_id', $customer_id);
-    ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $business_id,
+    ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $tnid,
         1, 'ciniki_survey_invites', $invite_id, 'status', '5');
-    ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $business_id,
+    ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.surveys', 'ciniki_survey_history', $tnid,
         1, 'ciniki_survey_invites', $invite_id, 'permalink', $permalink);
 
     $url = "/surveys/invite/$permalink";
