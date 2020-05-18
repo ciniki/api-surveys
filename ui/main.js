@@ -293,7 +293,7 @@ function ciniki_surveys_main() {
         //
         var appContainer = M.createContainer(appPrefix, 'ciniki_surveys_main', 'yes');
         if( appContainer == null ) {
-            alert('App Error');
+            M.alert('App Error');
             return false;
         } 
 
@@ -511,15 +511,15 @@ function ciniki_surveys_main() {
     };
 
     this.deleteQuestion = function() {
-        if( confirm('Are you sure you want to delete this question?') ) {
+        M.confirm('Are you sure you want to delete this question?',null,function() {
             var rsp = M.api.getJSONCb('ciniki.surveys.questionDelete', {'tnid':M.curTenantID, 
-                'question_id':this.editquestion.question_id}, function(rsp) {
+                'question_id':M.ciniki_surveys_main.editquestion.question_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;
                     }
                     M.ciniki_surveys_main.editquestion.close();
                 });
-        }
+        });
     };
 }
